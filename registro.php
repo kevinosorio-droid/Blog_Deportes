@@ -1,22 +1,20 @@
 <?php
-include 'conexion.php'; // Conectar a la BD
+session_start();
+include("conexion.php");
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nombre = trim($_POST['nombre']);
-    $apellidos = trim($_POST['apellidos']);
-    $email = trim($_POST['email']);
-    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
-    
-    $sql = "INSERT INTO usuarios (nombre, apellidos, email, password) VALUES (?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssss", $nombre, $apellidos, $email, $password);
-    
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $usuario = $_POST['usuario'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+    $stmt = $conn->prepare("INSERT INTO usuarios (usuario, password) VALUES (?, ?)");
+    $stmt->bind_param("ss", $usuario, $password);
+
     if ($stmt->execute()) {
-        echo '<div class="alerta alerta-exito">Se registró correctamente</div>';
+        $_SESSION['registro_exitoso'] = true; // Guardamos en sesión para mostrar mensaje
+        header("Location: login.php"); // Redirigimos al login
+        exit();
     } else {
-        echo '<div class="alerta alerta-error">Error en algún dato</div>';
+        echo "Error al registrar usuario.";
     }
-    $stmt->close();
-    $conn->close();
 }
 ?>
