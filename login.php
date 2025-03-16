@@ -1,58 +1,44 @@
 <?php
 session_start();
-include("conexion.php");
-$mensaje = ""; // Variable para almacenar mensajes de error
+include("conexion.php"); // Asegúrate de que este archivo tiene la conexión a la DB
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $usuario = isset($_POST['usuario']) ? trim($_POST['usuario']) : null;
+    $email = isset($_POST['email']) ? trim($_POST['email']) : null;
     $password = isset($_POST['password']) ? trim($_POST['password']) : null;
 
-    if (!empty($usuario) && !empty($password)) {
-        // Verifica que la conexión sea válida
-        if (!$conn) {
-            die("❌ Error de conexión: " . mysqli_connect_error());
-        }
-
-        // Habilita los errores de MySQL para depuración
-        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-
-        // Prepara la consulta SQL
-        $stmt = $conn->prepare("SELECT id, password FROM usuarios WHERE usuario = ?");
-        
+    if (!empty($email) && !empty($password)) {
+        $stmt = $conn->prepare("SELECT id, nombre, apellidos, email, password FROM usuarios WHERE email = ?");
         if ($stmt) {
-            $stmt->bind_param("s", $usuario);
+            $stmt->bind_param("s", $email);
             $stmt->execute();
             $resultado = $stmt->get_result();
 
             if ($resultado->num_rows == 1) {
-                $fila = $resultado->fetch_assoc();
-                if (password_verify($password, $fila['password'])) {
-                    $_SESSION['usuario'] = $usuario;
+                $usuario = $resultado->fetch_assoc();
+                if (password_verify($password, $usuario['password'])) {
+                    $_SESSION['usuario'] = [
+                        'id' => $usuario['id'],
+                        'nombre' => $usuario['nombre'],
+                        'apellidos' => $usuario['apellidos'],
+                        'email' => $usuario['email']
+                    ];
+                    echo json_encode(["status" => "success"]);
                     exit();
                 } else {
-                    $mensaje = "❌ Contraseña incorrecta.";
+                    echo json_encode(["status" => "error", "mensaje" => "Contraseña incorrecta."]);
+                    exit();
                 }
             } else {
-                $mensaje = "❌ Usuario no encontrado.";
+                echo json_encode(["status" => "error", "mensaje" => "El usuario no existe."]);
+                exit();
             }
-            $stmt->close();
         } else {
-            $mensaje = "❌ Error en la consulta SQL: " . $conn->error;
+            echo json_encode(["status" => "error", "mensaje" => "Error en la consulta SQL."]);
+            exit();
         }
     } else {
-        $mensaje = "❌ Debes completar todos los campos.";
+        echo json_encode(["status" => "error", "mensaje" => "Todos los campos son obligatorios."]);
+        exit();
     }
-}
-?>
-
-<form method="post">
-    <input type="text" name="usuario" placeholder="Usuario" required>
-    <input type="password" name="password" placeholder="Contraseña" required>
-    <button type="submit">Iniciar Sesión</button>
-</form>
-
-<?php
-if (!empty($mensaje)) {
-    echo "<p class='error'>$mensaje</p>";
 }
 ?>
