@@ -1,23 +1,78 @@
 <?php
 session_start();
+include("conexion.php");
 
-if (!isset($_SESSION['usuario'])) {
-    header("Location: login.html"); // Redirige si no está autenticado
+$response = ["status" => "error", "mensaje" => "Ocurrió un error inesperado."];
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['action'])) {
+        $action = $_POST['action'];
+
+        // Iniciar sesión
+        if ($action == "login") {
+            $email = trim($_POST['email'] ?? "");
+            $password = trim($_POST['password'] ?? "");
+
+            if (!empty($email) && !empty($password)) {
+                $stmt = $conn->prepare("SELECT id, nombre, apellidos, email, password FROM usuarios WHERE email = ?");
+                $stmt->bind_param("s", $email);
+                $stmt->execute();
+                $resultado = $stmt->get_result();
+
+                if ($resultado->num_rows == 1) {
+                    $usuario = $resultado->fetch_assoc();
+                    if (password_verify($password, $usuario['password'])) {
+                        $_SESSION['usuario'] = [
+                            'id' => $usuario['id'],
+                            'nombre' => $usuario['nombre'],
+                            'apellidos' => $usuario['apellidos'],
+                            'email' => $usuario['email']
+                        ];
+                        $response = ["status" => "success", "mensaje" => "Inicio de sesión exitoso."];
+                    } else {
+                        $response["mensaje"] = "Contraseña incorrecta.";
+                    }
+                } else {
+                    $response["mensaje"] = "El usuario no existe.";
+                }
+            } else {
+                $response["mensaje"] = "Todos los campos son obligatorios.";
+            }
+        }
+
+        // Registro de usuario
+        if ($action == "register") {
+            $nombre = trim($_POST['nombre'] ?? "");
+            $apellidos = trim($_POST['apellidos'] ?? "");
+            $email = trim($_POST['email'] ?? "");
+            $password = trim($_POST['password'] ?? "");
+            $fecha = date("Y-m-d");
+
+            if (!empty($nombre) && !empty($apellidos) && !empty($email) && !empty($password)) {
+                $password_hashed = password_hash($password, PASSWORD_BCRYPT);
+
+                $stmt = $conn->prepare("INSERT INTO usuarios (nombre, apellidos, email, password, fecha) VALUES (?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssss", $nombre, $apellidos, $email, $password_hashed, $fecha);
+
+                if ($stmt->execute()) {
+                    $response = ["status" => "success", "mensaje" => "Registro exitoso. Ahora puedes iniciar sesión."];
+                } else {
+                    $response["mensaje"] = "Error al registrar el usuario. Es posible que el correo ya esté registrado.";
+                }
+            } else {
+                $response["mensaje"] = "Todos los campos son obligatorios.";
+            }
+        }
+    }
+}
+
+// Cerrar sesión
+if (isset($_GET['logout'])) {
+    session_destroy();
+    header("Location: index.php");
     exit();
 }
 
-$usuario = $_SESSION['usuario'];
+echo json_encode($response);
+exit();
 ?>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Bienvenido</title>
-</head>
-<body>
-    <h1>Bienvenido, <?= htmlspecialchars($usuario['nombre']) ?> <?= htmlspecialchars($usuario['apellidos']) ?></h1>
-    <p>Tu correo: <?= htmlspecialchars($usuario['email']) ?></p>
-    <a href="logout.php">Cerrar sesión</a>
-</body>
-</html>
