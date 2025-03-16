@@ -17,4 +17,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "Error al registrar usuario.";
     }
 }
+
 ?>
+
