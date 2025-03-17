@@ -1,14 +1,14 @@
 <?php
-$host = "localhost";
-$user = "root"; 
-$password = ""; 
-$database = "blog_deportes-main"; 
+$servername = "localhost";
+$username = "";
+$password = "";
+$dbname = "blog_deportes-main";
 
-$conn = new mysqli($host, $user, $password, $database);
+// Crear conexión
+$conn = new mysqli($servername, $username, $password, $dbname);
 
 // Verificar conexión
 if ($conn->connect_error) {
-    die("Error de conexión: " . $conn->connect_error);
+    die("Conexión fallida: " . $conn->connect_error);
 }
-
 ?>
