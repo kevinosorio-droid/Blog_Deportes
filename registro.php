@@ -1,35 +1,21 @@
 <?php
-session_start();
-include "conexion.php";
+include 'conexion.php'; // Conectar a la BD
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nombre = trim($_POST['nombre']);
     $apellidos = trim($_POST['apellidos']);
     $email = trim($_POST['email']);
-    $password = password_hash(trim($_POST['password']), PASSWORD_BCRYPT);
-
-    // Verificar si el correo ya existe
-    $checkUser = $conn->prepare("SELECT id FROM usuarios WHERE email = ?");
-    $checkUser->bind_param("s", $email);
-    $checkUser->execute();
-    $checkUser->store_result();
-
-    if ($checkUser->num_rows > 0) {
-        echo json_encode(["status" => "error", "mensaje" => "El correo ya está registrado."]);
-        exit();
-    }
-    $checkUser->close();
-
-    // Insertar el nuevo usuario
-    $stmt = $conn->prepare("INSERT INTO usuarios (nombre, apellidos, email, password) VALUES (?, ?, ?, ?)");
+    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
+    
+    $sql = "INSERT INTO usuarios (nombre, apellidos, email, password) VALUES (?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
     $stmt->bind_param("ssss", $nombre, $apellidos, $email, $password);
-
+    
     if ($stmt->execute()) {
-        echo json_encode(["status" => "success", "mensaje" => "Registro exitoso. Ahora puedes iniciar sesión."]);
+        echo '<div class="alerta alerta-exito">Se registró correctamente</div>';
     } else {
-        echo json_encode(["status" => "error", "mensaje" => "Error al registrar el usuario."]);
+        echo '<div class="alerta alerta-error">Error en algún dato</div>';
     }
-
     $stmt->close();
     $conn->close();
 }
