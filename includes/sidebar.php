@@ -16,17 +16,15 @@
             <a href="crear-entradas.php" class="boton boton-verde">Crear entradas</a>
             <a href="crear-categoria.php" class="boton">Crear categoría</a>
             <a href="mis-datos.php" class="boton boton-naranja">Mis datos</a>
-            <a href="cerrar.php" class="boton boton-rojo">Cerrar sesión</a>
+            <a href="php/logout.php" class="boton boton-rojo">Cerrar sesión</a>
         </div>
     <?php else: ?>
         <!-- Bloque para usuarios no logueados -->
         <div id="login" class="bloque">
             <h3>Inicia Sesión</h3>
-            <?php if (isset($_GET['error']) && $_GET['error'] == 'login'): ?>
-                
-            <?php endif; ?>
+            <div id="alerta-login" class="alerta"></div>
             
-            <form action="login.php" method="POST"> 
+            <form id="loginForm" method="POST"> 
                 <label for="email">Email</label>
                 <input type="email" name="email" required />
                 
@@ -39,14 +37,9 @@
         
         <div id="register" class="bloque">
             <h3>Registrarse</h3>
+            <div id="alerta-registro" class="alerta"></div>
             
-            <?php if (isset($_GET['registro']) && $_GET['registro'] == 'exito'): ?>
-              
-            <?php elseif (isset($_GET['registro']) && $_GET['registro'] == 'error'): ?>
-               
-            <?php endif; ?>
-            
-            <form action="registro.php" method="POST"> 
+            <form id="registerForm" method="POST"> 
                 <label for="nombre">Nombre</label>
                 <input type="text" name="nombre" required />
                 
@@ -65,4 +58,4 @@
     <?php endif; ?>
 </aside>
 
-<script src="js/auth.js"></script>
+<script src="auth.js"></script>
