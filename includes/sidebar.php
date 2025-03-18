@@ -23,9 +23,7 @@
         <div id="login" class="bloque">
             <h3>Inicia Sesión</h3>
             <?php if (isset($_GET['error']) && $_GET['error'] == 'login'): ?>
-                <div class="alerta alerta-error">
-                    Usuario no existe o contraseña incorrecta.
-                </div>
+                
             <?php endif; ?>
             
             <form action="login.php" method="POST"> 
@@ -43,13 +41,9 @@
             <h3>Registrarse</h3>
             
             <?php if (isset($_GET['registro']) && $_GET['registro'] == 'exito'): ?>
-                <div class="alerta alerta-exito">
-                    ¡Registro exitoso! Ahora puedes iniciar sesión.
-                </div>
+              
             <?php elseif (isset($_GET['registro']) && $_GET['registro'] == 'error'): ?>
-                <div class="alerta alerta-error">
-                    Error en algún dato. Inténtalo de nuevo.
-                </div>
+               
             <?php endif; ?>
             
             <form action="registro.php" method="POST"> 
@@ -70,3 +64,5 @@
         </div>
     <?php endif; ?>
 </aside>
+
+<script src="js/auth.js"></script>

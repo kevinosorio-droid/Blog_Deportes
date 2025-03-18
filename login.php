@@ -1,31 +1,33 @@
 <?php
-include 'conexion.php';
+session_start();
+include("conexion.php");
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = trim($_POST['email']);
-    $password = $_POST['password'];
-    
-    $sql = "SELECT id, password FROM usuarios WHERE email = ?";
+    $password = trim($_POST['password']);
+
+    $sql = "SELECT id, nombre, email, password FROM usuarios WHERE email = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
-    $stmt->store_result();
-    
-    if ($stmt->num_rows > 0) {
-        $stmt->bind_result($id, $hashed_password);
-        $stmt->fetch();
-        
-        if (password_verify($password, $hashed_password)) {
-            session_start();
-            $_SESSION['user_id'] = $id;
-            header("Location: index.php");
-            exit();
+    $resultado = $stmt->get_result();
+
+    if ($resultado->num_rows == 1) {
+        $usuario = $resultado->fetch_assoc();
+        if (password_verify($password, $usuario['password'])) {
+            $_SESSION['usuario'] = [
+                'id' => $usuario['id'],
+                'nombre' => $usuario['nombre'],
+                'email' => $usuario['email']
+            ];
+            echo json_encode(["status" => "success", "mensaje" => "Inicio de sesión exitoso."]);
         } else {
-            echo '<div class="alerta alerta-error">Contraseña incorrecta</div>';
+            echo json_encode(["status" => "error", "mensaje" => "Contraseña incorrecta."]);
         }
     } else {
-        echo '<div class="alerta alerta-error">Usuario no existe</div>';
+        echo json_encode(["status" => "error", "mensaje" => "El usuario no existe."]);
     }
+
     $stmt->close();
     $conn->close();
 }
