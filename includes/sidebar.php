@@ -57,5 +57,3 @@
         </div>
     <?php endif; ?>
 </aside>
-
-<script src="auth.js"></script>
