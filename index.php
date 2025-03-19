@@ -8,7 +8,7 @@ session_start();
 include("php/conexion.php"); // Asegúrate de que la ruta sea correcta
 
 // Verificar si la conexión a la base de datos se estableció correctamente
-if (!$db) {
+if (!$conn) {
     echo "<div class='alerta-error'>Error: No se pudo conectar a la base de datos. " . mysqli_connect_error() . "</div>";
     // Detener la ejecución del script si la conexión falla
     exit;
