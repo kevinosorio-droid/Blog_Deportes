@@ -1,4 +1,3 @@
-<!-- BARRA LATERAL -->
 <aside id="sidebar">
     <div id="buscador" class="bloque">
         <h3>Buscar</h3>
@@ -9,17 +8,14 @@
     </div>
     
     <?php if (isset($_SESSION['usuario'])): ?>
-        <!-- Bloque para usuarios logueados -->
         <div id="usuario-logueado" class="bloque">
             <h3>Bienvenido, <?php echo $_SESSION['usuario']['nombre']; ?></h3>
-            <!-- Botones -->
-            <a href="crear-entradas.php" class="boton boton-verde">Crear entradas</a>
+            <a href="index.php?crear_entrada=1" class="boton boton-verde">Crear entradas</a>
             <a href="crear-categoria.php" class="boton">Crear categoría</a>
             <a href="mis-datos.php" class="boton boton-naranja">Mis datos</a>
             <a href="php/logout.php" class="boton boton-rojo">Cerrar sesión</a>
         </div>
     <?php else: ?>
-        <!-- Bloque para usuarios no logueados -->
         <div id="login" class="bloque">
             <h3>Inicia Sesión</h3>
             <div id="alerta-login" class="alerta"></div>
