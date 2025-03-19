@@ -28,15 +28,15 @@ if (isset($_POST['crear_entrada']) && isset($_SESSION['usuario'])) {
 
     $sql = "INSERT INTO entradas (usuario_id, categoria_id, titulo, contenido, fecha) VALUES ($usuario_id, $categoria_id, '$titulo', '$contenido', CURDATE())";
 
-    if (mysqli_query($db, $sql)) {
+    if (mysqli_query($conn, $sql)) {
         echo "<div class='alerta'>Entrada creada con éxito.</div>";
     } else {
-        echo "<div class='alerta-error'>Error: " . $sql . "<br>" . mysqli_error($db) . "</div>";
+        echo "<div class='alerta-error'>Error: " . $sql . "<br>" . mysqli_error($conn) . "</div>";
     }
 }
 
 // Obtener categorías para el select
-$categorias = mysqli_query($db, "SELECT * FROM categorias");
+$categorias = mysqli_query($conn, "SELECT * FROM categorias");
 ?>
 
 <!DOCTYPE html>
