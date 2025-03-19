@@ -18,7 +18,7 @@ if (isset($_SESSION['usuario'])) {
 <head>
     <meta charset="UTF-8">
     <title>Blog de Temas</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <!-- Incluir la cabecera -->
