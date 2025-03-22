@@ -14,7 +14,7 @@ if (!$conn) {
     exit;
 }
 
-// Verificar si el usuario ha iniciado sesión
+// Verificar sii el usuario ha iniciado sesión
 if (isset($_SESSION['usuario'])) {
     $usuario = $_SESSION['usuario'];
     $usuario_id = $_SESSION['usuario']['id']; // Obtener ID de usuario
