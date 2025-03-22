@@ -35,6 +35,27 @@ if (isset($_POST['crear_entrada']) && isset($_SESSION['usuario'])) {
     }
 }
 
+// Procesar el formulario de creación de categorías
+if (isset($_POST['crear_categoria']) && isset($_SESSION['usuario'])) {
+    $nombre = mysqli_real_escape_string($conn, $_POST['nombre_categoria']);
+    
+    // Comprobar si la categoría ya existe
+    $sql_check = "SELECT * FROM categorias WHERE nombre = '$nombre'";
+    $check = mysqli_query($conn, $sql_check);
+    
+    if(mysqli_num_rows($check) > 0){
+        echo "<div class='alerta-error'>La categoría '$nombre' ya existe</div>";
+    } else {
+        // Insertar la categoría
+        $sql = "INSERT INTO categorias (nombre) VALUES ('$nombre')";
+        if(mysqli_query($conn, $sql)){
+            echo "<div class='alerta'>Categoría creada con éxito.</div>";
+        } else {
+            echo "<div class='alerta-error'>Error al crear la categoría: " . mysqli_error($conn) . "</div>";
+        }
+    }
+}
+
 // Obtener categorías para el select
 $categorias = mysqli_query($conn, "SELECT * FROM categorias");
 ?>
@@ -69,9 +90,53 @@ $categorias = mysqli_query($conn, "SELECT * FROM categorias");
 
                     <input type="submit" name="crear_entrada" value="Guardar Entrada" class="boton boton-verde" />
                 </form>
+            <?php elseif (isset($_SESSION['usuario']) && isset($_GET['crear_categoria'])): ?>
+                <h1>Crear Nueva Categoría</h1>
+                <form action="index.php" method="POST">
+                    <label for="nombre_categoria">Nombre de la categoría:</label>
+                    <input type="text" name="nombre_categoria" required />
+                    
+                    <input type="submit" name="crear_categoria" value="Guardar Categoría" class="boton boton-verde" />
+                </form>
             <?php else: ?>
                 <h1>Bienvenido al Blog</h1>
-                <p>Este es el contenido principal de la página.</p>
+                <?php
+                // Obtener entradas filtradas por categoría si se seleccionó una
+                if(isset($_GET['categoria'])) {
+                    $categoria_id = (int)$_GET['categoria'];
+                    $sql = "SELECT e.*, c.nombre as categoria_nombre, u.nombre as autor 
+                            FROM entradas e 
+                            INNER JOIN categorias c ON e.categoria_id = c.id 
+                            INNER JOIN usuarios u ON e.usuario_id = u.id 
+                            WHERE e.categoria_id = $categoria_id 
+                            ORDER BY e.fecha DESC";
+                    $categoria_actual = mysqli_fetch_assoc(mysqli_query($conn, "SELECT nombre FROM categorias WHERE id = $categoria_id"));
+                    echo "<h2>Entradas de la categoría: " . $categoria_actual['nombre'] . "</h2>";
+                } else {
+                    $sql = "SELECT e.*, c.nombre as categoria_nombre, u.nombre as autor 
+                            FROM entradas e 
+                            INNER JOIN categorias c ON e.categoria_id = c.id 
+                            INNER JOIN usuarios u ON e.usuario_id = u.id 
+                            ORDER BY e.fecha DESC";
+                }
+
+                $entradas = mysqli_query($conn, $sql);
+                
+                if($entradas && mysqli_num_rows($entradas) > 0):
+                    while($entrada = mysqli_fetch_assoc($entradas)):
+                ?>
+                    <article class="entrada">
+                        <h2><?php echo $entrada['titulo']; ?></h2>
+                        <span class="fecha"><?php echo date('d/m/Y', strtotime($entrada['fecha'])); ?> | <?php echo $entrada['autor']; ?> | <?php echo $entrada['categoria_nombre']; ?></span>
+                        <p><?php echo substr($entrada['contenido'], 0, 200) . '...'; ?></p>
+                        <a href="entrada.php?id=<?php echo $entrada['id']; ?>" class="boton">Leer más</a>
+                    </article>
+                <?php 
+                    endwhile;
+                else:
+                    echo "<p>No hay entradas para mostrar.</p>";
+                endif;
+                ?>
             <?php endif; ?>
         </div>
 

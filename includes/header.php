@@ -21,9 +21,19 @@
                 <li>
                     <a href="index.php">Inicio</a>
                 </li>
-                <li>
-                    <a href="index.php">Categorías</a>
-                </li>
+                <?php
+                // Obtener categorías para el menú
+                $categorias_menu = mysqli_query($conn, "SELECT * FROM categorias ORDER BY nombre ASC");
+                if($categorias_menu && mysqli_num_rows($categorias_menu) > 0):
+                    while($categoria = mysqli_fetch_assoc($categorias_menu)):
+                ?>
+                    <li>
+                        <a href="index.php?categoria=<?php echo $categoria['id']; ?>"><?php echo $categoria['nombre']; ?></a>
+                    </li>
+                <?php 
+                    endwhile;
+                endif;
+                ?>
                 <li>
                     <a href="index.php">Sobre mí</a>
                 </li>
