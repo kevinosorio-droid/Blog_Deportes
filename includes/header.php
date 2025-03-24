@@ -1,3 +1,9 @@
+<?php
+if (!isset($conn)) {
+    include("php/conexion.php");  // Asegurar que la conexión existe
+}
+?>
+
 <!DOCTYPE HTML>
 <html lang="es">
 <head>
@@ -19,7 +25,7 @@
         <nav id="menu">
             <ul>
                 <li>
-                    <a href="index.php">Inicio</a>
+                    <a href="../index.php">Inicio</a>
                 </li>
                 <?php
                 // Obtener categorías para el menú

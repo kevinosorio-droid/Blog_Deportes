@@ -42,7 +42,7 @@ if (isset($_POST['crear_categoria']) && isset($_SESSION['usuario'])) {
     // Comprobar si la categoría ya existe
     $sql_check = "SELECT * FROM categorias WHERE nombre = '$nombre'";
     $check = mysqli_query($conn, $sql_check);
-    
+
     if(mysqli_num_rows($check) > 0){
         echo "<div class='alerta-error'>La categoría '$nombre' ya existe</div>";
     } else {
@@ -129,7 +129,7 @@ $categorias = mysqli_query($conn, "SELECT * FROM categorias");
                         <h2><?php echo $entrada['titulo']; ?></h2>
                         <span class="fecha"><?php echo date('d/m/Y', strtotime($entrada['fecha'])); ?> | <?php echo $entrada['autor']; ?> | <?php echo $entrada['categoria_nombre']; ?></span>
                         <p><?php echo substr($entrada['contenido'], 0, 200) . '...'; ?></p>
-                        <a href="entrada.php?id=<?php echo $entrada['id']; ?>" class="boton">Leer más</a>
+                        <a href="php/entrada.php?id=<?php echo $entrada['id']; ?>" class="boton">Leer más</a>
                     </article>
                 <?php 
                     endwhile;

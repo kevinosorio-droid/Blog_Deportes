@@ -1,4 +1,6 @@
 <?php
+session_start();
+include("../php/conexion.php");
 // Habilitar la visualización de errores
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
