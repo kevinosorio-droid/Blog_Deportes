@@ -1,6 +1,6 @@
 <?php
 if (!isset($conn)) {
-    include("php/conexion.php");  // Asegurar que la conexión existe
+    include("../php/conexion.php");  // Asegurar que la conexión existe
 }
 ?>
 
@@ -16,7 +16,7 @@ if (!isset($conn)) {
     <header id="cabecera">
         <!-- LOGO -->
         <div id="logo">
-            <a href="index.php">
+            <a href="../php/index.php">
                 Blog de Temas
             </a>
         </div>
@@ -25,7 +25,7 @@ if (!isset($conn)) {
         <nav id="menu">
             <ul>
                 <li>
-                    <a href="../index.php">Inicio</a>
+                    <a href="../php/index.php">Inicio</a>
                 </li>
                 <?php
                 // Obtener categorías para el menú
@@ -34,17 +34,17 @@ if (!isset($conn)) {
                     while($categoria = mysqli_fetch_assoc($categorias_menu)):
                 ?>
                     <li>
-                        <a href="index.php?categoria=<?php echo $categoria['id']; ?>"><?php echo $categoria['nombre']; ?></a>
+                        <a href="../php/index.php?php echo $categoria['id']; ?>"><?php echo $categoria['nombre']; ?></a>
                     </li>
                 <?php 
                     endwhile;
                 endif;
                 ?>
                 <li>
-                    <a href="index.php">Sobre mí</a>
+                    <a href="../php/sobre_mi.php">Sobre mí</a>
                 </li>
                 <li>
-                    <a href="index.php">Contacto</a>
+                    <a href="../php/contacto.php">Contacto</a>
                 </li>
             </ul>
         </nav>
