@@ -1,5 +1,5 @@
 <?php
-$servername = "localhost"; 
+$servername = "localhost"; // Servidor de la base de datos
 $username = "root";        
 $password = "";            
 $dbname = "blog_deportes-main"; 

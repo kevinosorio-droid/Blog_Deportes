@@ -1,6 +1,7 @@
 <?php
-if (!isset($conn)) {
-    include("../php/conexion.php");  // Asegurar que la conexión existe
+// Verificar conexión y establecerla si no existe
+if (!isset($conn) || !$conn instanceof mysqli || $conn->connect_error) {
+    include(__DIR__."/../php/conexion.php");
 }
 ?>
 

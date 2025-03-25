@@ -1,13 +1,12 @@
 <?php
 session_start();
-include("../php/conexion.php");
 // Habilitar la visualización de errores
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-session_start();
-include("php/conexion.php"); // Asegúrate de que la ruta sea correcta
+// Incluir conexión (usa una sola ruta consistente)
+include(__DIR__."/../php/conexion.php");
 
 // Obtener el término de búsqueda
 $busqueda = isset($_POST['busqueda']) ? trim($_POST['busqueda']) : '';
@@ -33,7 +32,7 @@ while ($fila = $resultado->fetch_assoc()) {
 }
 
 $stmt->close();
-$conn->close();
+// NO cerramos $conn aquí porque lo necesita header.php
 ?>
 
 <!DOCTYPE html>
@@ -45,7 +44,7 @@ $conn->close();
 </head>
 <body>
     <!-- Incluir la cabecera -->
-    <?php include("includes/header.php"); ?>
+    <?php include(__DIR__."/includes/header.php"); ?>
 
     <!-- Contenido principal -->
     <div id="contenido-principal">
@@ -70,9 +69,14 @@ $conn->close();
     </div>
 
     <!-- Incluir la barra lateral -->
-    <?php include("includes/sidebar.php"); ?>
+    <?php include(__DIR__."/includes/sidebar.php"); ?>
 
     <!-- Incluir el pie de página -->
-    <?php include("includes/footer.php"); ?>
+    <?php include(__DIR__."/includes/footer.php"); ?>
 </body>
 </html>
+
+<?php
+// Ahora sí podemos cerrar la conexión, después de todo el HTML
+$conn->close();
+?>
