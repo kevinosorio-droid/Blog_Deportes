@@ -104,7 +104,7 @@ body{
 #contenedor{
     width: 85%;
     height: auto;
-/*    min-height: 600px;*/
+/* min-height: 600px;*/
     margin: 0px auto;
     margin-top: 30px;
     margin-bottom: 30px;
@@ -124,7 +124,7 @@ body{
     margin-bottom: 35px;
     background: white;
     padding: 15px;
-    box-shadow: 0px 0px 1px rgba(0,0,0,0.3), 0px 3px 7px rgba(0,0,0,0.3), 0px 0px 1px #FFFFFF inset, 0px -3px 2px rgba(0,0,0,0.25) inset; 
+    box-shadow: 0px 0px 1px rgba(0,0,0,0.3), 0px 3px 7px rgba(0,0,0,0.3), 0px 0px 1px #FFFFFF inset, 0px -3px 2px rgba(0,0,0,0.25) inset;
 }
 
 .bloque h3{
@@ -282,6 +282,7 @@ input[type="submit"],
     margin: 5em;
 }
 
+/* ESTILOS PARA CARDS - INSERTADOS AQUÍ */
 .cards{
     margin-top: 20px;
     display: flex;
@@ -301,5 +302,71 @@ input[type="submit"],
     justify-content: center;
     align-items: center;
     flex-direction: column;
+}
 
+/* ESTILOS ESPECÍFICOS PARA LA PÁGINA DE RESULTADOS DE BÚSQUEDA */
+#contenido-principal {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+#contenido-principal h1 {
+    color: #337ab7;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 28px; /* Ajustar tamaño si es necesario */
+    font-family: "Montserrat", sans-serif; /* Usar la fuente principal */
+}
+
+#contenido-principal ul {
+    list-style: none;
+    padding: 0;
+}
+
+#contenido-principal ul li {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+#contenido-principal ul li:last-child {
+    border-bottom: none;
+}
+
+#contenido-principal ul li h2 {
+    color: #2979CD; /* Usar el color principal */
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-size: 20px; /* Ajustar tamaño si es necesario */
+    font-family: "Montserrat", sans-serif; /* Usar la fuente principal */
+}
+
+#contenido-principal ul li p {
+    line-height: 1.6;
+    margin-bottom: 8px;
+    color: #333; /* Color de texto general */
+}
+
+#contenido-principal ul li p small {
+    color: #777;
+    font-size: 12px;
+    font-style: italic;
+}
+
+#contenido-principal ul li a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#contenido-principal ul li a:hover {
+    text-decoration: underline;
+}
+
+#contenido-principal > p { /* Estilo para el mensaje de no resultados */
+    font-style: italic;
+    color: #777;
 }

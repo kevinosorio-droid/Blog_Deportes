@@ -6,7 +6,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Incluir conexión (usa una sola ruta consistente)
-include(__DIR__."/../php/conexion.php");
+include("conexion.php");
 
 // Obtener el término de búsqueda
 $busqueda = isset($_POST['busqueda']) ? trim($_POST['busqueda']) : '';
@@ -32,7 +32,6 @@ while ($fila = $resultado->fetch_assoc()) {
 }
 
 $stmt->close();
-// NO cerramos $conn aquí porque lo necesita header.php
 ?>
 
 <!DOCTYPE html>
@@ -40,18 +39,16 @@ $stmt->close();
 <head>
     <meta charset="UTF-8">
     <title>Resultados de búsqueda</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
-    <!-- Incluir la cabecera -->
-    <?php include(__DIR__."/includes/header.php"); ?>
+    <?php include("../includes/header.php"); ?>
+    <?php include("../includes/sidebar.php"); ?>
 
-    <!-- Contenido principal -->
-    <div id="contenido-principal">
+    <div id="principal">
         <h1>Resultados de búsqueda para: "<?php echo htmlspecialchars($busqueda); ?>"</h1>
 
         <?php if (count($resultados) > 0): ?>
-            <!-- Mostrar resultados -->
             <ul>
                 <?php foreach ($resultados as $entrada): ?>
                     <li>
@@ -63,20 +60,19 @@ $stmt->close();
                 <?php endforeach; ?>
             </ul>
         <?php else: ?>
-            <!-- Mostrar mensaje si no hay resultados -->
             <p>No se encontraron resultados para "<?php echo htmlspecialchars($busqueda); ?>".</p>
         <?php endif; ?>
     </div>
 
-    <!-- Incluir la barra lateral -->
-    <?php include(__DIR__."/includes/sidebar.php"); ?>
+    
 
-    <!-- Incluir el pie de página -->
-    <?php include(__DIR__."/includes/footer.php"); ?>
+    <?php include("../includes/footer.php"); ?>
 </body>
 </html>
 
 <?php
 // Ahora sí podemos cerrar la conexión, después de todo el HTML
-$conn->close();
+if (isset($conn)) {
+    $conn->close();
+}
 ?>

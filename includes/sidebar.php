@@ -1,7 +1,7 @@
 <aside id="sidebar">
     <div id="buscador" class="bloque">
         <h3>Buscar</h3>
-        <form action="../php/buscar.php" method="POST"> 
+        <form action="/Blog_Deportes/php/buscar.php" method="POST"> 
             <input type="text" name="busqueda" />
             <input type="submit" value="Buscar" />
         </form>

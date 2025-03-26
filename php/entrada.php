@@ -68,7 +68,7 @@ if (isset($_GET['eliminar']) && $_GET['eliminar'] == 'true' && isset($_SESSION['
 
                 <?php if (isset($_SESSION['usuario'])): ?>
                     <div class="acciones">
-                        <a href="editar_entrada.php?id=<?php echo $entrada['id']; ?>" class="boton boton-editar">Editar</a>
+                        <a href="editar.php?id=<?php echo $entrada['id']; ?>" class="boton boton-editar">Editar</a>
                         <a href="entrada.php?id=<?php echo $entrada['id']; ?>&eliminar=true" class="boton boton-eliminar" onclick="return confirm('¿Estás seguro de que deseas eliminar esta entrada?')">Eliminar</a>
                     </div>
                 <?php endif; ?>

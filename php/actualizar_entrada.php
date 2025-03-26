@@ -3,17 +3,17 @@ session_start();
 include("conexion.php");
 
 if (!isset($_SESSION['usuario'])) {
-    header("Location: ../login.php");
+    header("Location: login.php");
     exit();
 }
 
 if (isset($_POST['actualizar_entrada'])) {
     $entrada_id = mysqli_real_escape_string($conn, $_POST['entrada_id']);
     $titulo = mysqli_real_escape_string($conn, $_POST['titulo']);
-    $contenido = mysqli_real_escape_string($conn, $_POST['contenido']);
+    $descripcion  = mysqli_real_escape_string($conn, $_POST['descripcion ']);
     $categoria_id = mysqli_real_escape_string($conn, $_POST['categoria']);
 
-    $sql = "UPDATE entradas SET titulo = '$titulo', descripcion = '$contenido', categoria_id = $categoria_id, fecha = CURDATE() WHERE id = $entrada_id";
+    $sql = "UPDATE entradas SET titulo = '$titulo', descripcion = '$descripcion', categoria_id = $categoria_id, fecha = CURDATE() WHERE id = $entrada_id";
 
     if (mysqli_query($conn, $sql)) {
         $_SESSION['mensaje'] = "Entrada actualizada con éxito.";

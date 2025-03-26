@@ -3,6 +3,11 @@
 if (!isset($conn) || !$conn instanceof mysqli || $conn->connect_error) {
     include(__DIR__."/../php/conexion.php");
 }
+
+/* var_dump($conn);
+if ($conn && $conn->connect_error) {
+    echo "Error de conexión: " . $conn->connect_error;
+} */
 ?>
 
 <!DOCTYPE HTML>
