@@ -52,3 +52,4 @@ if (!isset($conn) || !$conn instanceof mysqli || $conn->connect_error) {
         
         <div class="clearfix"></div>
     </header>
+<!-- comentario -->
