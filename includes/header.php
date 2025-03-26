@@ -13,17 +13,20 @@ if (!isset($conn) || !$conn instanceof mysqli || $conn->connect_error) {
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
 </head>
 <body>
+    <!-- CABECERA -->
     <header id="cabecera">
+        <!-- LOGO -->
         <div id="logo">
-            <a href="/BLOG_DEPORTES/index.php">
+            <a href="/Blog_Deportes/index.php">
                 Blog de Temas
             </a>
         </div>
-
+        
+        <!-- MENU -->
         <nav id="menu">
             <ul>
                 <li>
-                    <a href="/BLOG_DEPORTES/index.php">Inicio</a>
+                    <a href="/Blog_Deportes/index.php">Inicio</a>
                 </li>
                 <?php
                 // Obtener categorías para el menú
@@ -32,20 +35,21 @@ if (!isset($conn) || !$conn instanceof mysqli || $conn->connect_error) {
                     while($categoria = mysqli_fetch_assoc($categorias_menu)):
                 ?>
                     <li>
-                        <a href="/BLOG_DEPORTES/index.php?categoria=<?php echo $categoria['id']; ?>"><?php echo $categoria['nombre']; ?></a>
+                        <a href="/Blog_Deportes/index.php?categoria=<?php echo $categoria['id']; ?>"><?php echo $categoria['nombre']; ?></a>
                     </li>
-                <?php
+                <?php 
                     endwhile;
-                endif;
+                endif
                 ?>
                 <li>
-                    <a href="/BLOG_DEPORTES/sobre_mi.php">Sobre mí</a>
+                    <a href="/Blog_Deportes/sobre_mi.php">Sobre mí</a>
                 </li>
                 <li>
-                    <a href="/BLOG_DEPORTES/php/contacto.php">Contacto</a>
+                    <a href="/Blog_Deportes/php/contacto.php">Contacto</a>
                 </li>
             </ul>
         </nav>
-
+        
         <div class="clearfix"></div>
     </header>
+<!-- comentario -->

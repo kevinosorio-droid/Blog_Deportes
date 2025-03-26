@@ -58,7 +58,7 @@ if(isset($_POST['nombre'])){
         unset($_SESSION['error_categoria']);
         unset($_SESSION['completado']);
         ?>
-        
+        <!-- HOlaaa -->
         <form action="crear-categorias.php" method="POST">
             <label for="nombre">Nombre de la categoría:</label>
             <input type="text" name="nombre" id="nombre" required/>

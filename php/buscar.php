@@ -1,82 +1,76 @@
 <?php
-session_start();
+// buscar.php
+
 // Habilitar la visualización de errores
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Incluir conexión (usa una sola ruta consistente)
-include(__DIR__."/../php/conexion.php");
+session_start();
+include("conexion.php");
+
+// Verificar conexión
+if (!$conn) {
+    die("<div class='alerta-error'>Error: No se pudo conectar a la base de datos. " . mysqli_connect_error() . "</div>");
+}
 
 // Obtener el término de búsqueda
-$busqueda = isset($_POST['busqueda']) ? trim($_POST['busqueda']) : '';
+if (isset($_GET['termino']) && !empty($_GET['termino'])) {
+    $termino = mysqli_real_escape_string($conn, $_GET['termino']);
 
-// Verificar si se envió un término de búsqueda
-if (empty($busqueda)) {
-    header("Location: index.php");
-    exit();
+    // Consulta SQL para buscar entradas que coincidan con el término
+    $sql = "SELECT e.id, e.titulo, SUBSTRING(e.descripcion, 1, 200) AS resumen, DATE_FORMAT(e.fecha, '%d/%m/%Y') AS fecha, c.nombre AS categoria_nombre, u.nombre AS autor
+            FROM entradas e
+            INNER JOIN categorias c ON e.categoria_id = c.id
+            INNER JOIN usuarios u ON e.usuario_id = u.id
+            WHERE e.titulo LIKE '%$termino%' OR e.descripcion LIKE '%$termino%'
+            ORDER BY e.fecha DESC";
+
+    $resultados = mysqli_query($conn, $sql);
+} else {
+    // Si no se ingresa un término, mostrar un mensaje
+    $resultados = false;
+    $mensaje_error = "Por favor, ingrese un término de búsqueda.";
 }
-
-// Buscar en la base de datos
-$sql = "SELECT * FROM entradas WHERE titulo LIKE ? OR descripcion LIKE ?";
-$stmt = $conn->prepare($sql);
-$busquedaParam = "%$busqueda%";
-$stmt->bind_param("ss", $busquedaParam, $busquedaParam);
-$stmt->execute();
-$resultado = $stmt->get_result();
-
-// Obtener los resultados
-$resultados = [];
-while ($fila = $resultado->fetch_assoc()) {
-    $resultados[] = $fila;
-}
-
-$stmt->close();
-// NO cerramos $conn aquí porque lo necesita header.php
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Resultados de búsqueda</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>Resultados de la Búsqueda - Blog de Temas</title>
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
-    <!-- Incluir la cabecera -->
-    <?php include(__DIR__."/includes/header.php"); ?>
+    <?php include("../includes/header.php"); ?>
+    <div id="contenedor">
+        <div id="principal">
+            <h1>Resultados de la Búsqueda</h1>
 
-    <!-- Contenido principal -->
-    <div id="contenido-principal">
-        <h1>Resultados de búsqueda para: "<?php echo htmlspecialchars($busqueda); ?>"</h1>
+            <?php if (isset($mensaje_error)): ?>
+                <div class="alerta-error"><?php echo $mensaje_error; ?></div>
+            <?php endif; ?>
 
-        <?php if (count($resultados) > 0): ?>
-            <!-- Mostrar resultados -->
-            <ul>
-                <?php foreach ($resultados as $entrada): ?>
-                    <li>
-                        <h2><?php echo htmlspecialchars($entrada['titulo']); ?></h2>
-                        <p><?php echo htmlspecialchars($entrada['descripcion']); ?></p>
-                        <p><small>Publicado el: <?php echo date("d/m/Y H:i", strtotime($entrada['fecha'])); ?></small></p>
-                        <a href="entrada.php?id=<?php echo $entrada['id']; ?>">Leer más</a>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        <?php else: ?>
-            <!-- Mostrar mensaje si no hay resultados -->
-            <p>No se encontraron resultados para "<?php echo htmlspecialchars($busqueda); ?>".</p>
-        <?php endif; ?>
+            <?php if ($resultados): ?>
+                <?php if (mysqli_num_rows($resultados) > 0): ?>
+                    <?php while ($entrada = mysqli_fetch_assoc($resultados)): ?>
+                        <article class="entrada">
+                            <h2><?php echo htmlspecialchars($entrada['titulo']); ?></h2>
+                            <span class="fecha"><?php echo $entrada['fecha']; ?> | <?php echo htmlspecialchars($entrada['autor']); ?> | <?php echo htmlspecialchars($entrada['categoria_nombre']); ?></span>
+                            <p><?php echo htmlspecialchars($entrada['resumen']) . '...'; ?></p>
+                            <a href="entrada.php?id=<?php echo $entrada['id']; ?>" class="boton">Leer más</a>
+                        </article>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p>No se encontraron entradas que coincidan con su búsqueda.</p>
+                <?php endif; ?>
+            <?php endif; ?>
+        </div>
+        <?php include("../includes/sidebar.php"); ?>
     </div>
-
-    <!-- Incluir la barra lateral -->
-    <?php include(__DIR__."/includes/sidebar.php"); ?>
-
-    <!-- Incluir el pie de página -->
-    <?php include(__DIR__."/includes/footer.php"); ?>
+    <?php include("../includes/footer.php"); ?>
+    <script src="../js/auth.js"></script>
 </body>
 </html>
 
-<?php
-// Ahora sí podemos cerrar la conexión, después de todo el HTML
-$conn->close();
-?>
+<?php mysqli_close($conn); ?>
