@@ -5,16 +5,15 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
-include("php/conexion.php"); 
+include("php/conexion.php");
 
 // Verificar si la conexión a la base de datos se estableció correctamente
 if (!$conn) {
     echo "<div class='alerta-error'>Error: No se pudo conectar a la base de datos. " . mysqli_connect_error() . "</div>";
-    
     exit;
 }
 
-// Verificar sii el usuario ha iniciado sesión
+// Verificar si el usuario ha iniciado sesión
 if (isset($_SESSION['usuario'])) {
     $usuario = $_SESSION['usuario'];
     $usuario_id = $_SESSION['usuario']['id']; // Obtener ID de usuario
@@ -22,11 +21,12 @@ if (isset($_SESSION['usuario'])) {
 
 // Procesar el formulario de creación de entradas si se envía
 if (isset($_POST['crear_entrada']) && isset($_SESSION['usuario'])) {
-    $titulo = $_POST['titulo'];
-    $contenido = $_POST['contenido'];
-    $categoria_id = $_POST['categoria'];
+    $titulo = mysqli_real_escape_string($conn, $_POST['titulo']);
+    $contenido = mysqli_real_escape_string($conn, $_POST['contenido']);
+    $categoria_id = mysqli_real_escape_string($conn, $_POST['categoria']);
 
-    $sql = "INSERT INTO entradas (usuario_id, categoria_id, titulo, contenido, fecha) VALUES ($usuario_id, $categoria_id, '$titulo', '$contenido', CURDATE())";
+    // sea 'descripcion'. Si es diferente, reemplaza 'descripcion' con el nombre correcto.
+    $sql = "INSERT INTO entradas (usuario_id, categoria_id, titulo, descripcion, fecha) VALUES ($usuario_id, $categoria_id, '$titulo', '$contenido', CURDATE())";
 
     if (mysqli_query($conn, $sql)) {
         echo "<div class='alerta'>Entrada creada con éxito.</div>";
@@ -38,7 +38,7 @@ if (isset($_POST['crear_entrada']) && isset($_SESSION['usuario'])) {
 // Procesar el formulario de creación de categorías
 if (isset($_POST['crear_categoria']) && isset($_SESSION['usuario'])) {
     $nombre = mysqli_real_escape_string($conn, $_POST['nombre_categoria']);
-    
+
     // Comprobar si la categoría ya existe
     $sql_check = "SELECT * FROM categorias WHERE nombre = '$nombre'";
     $check = mysqli_query($conn, $sql_check);
@@ -84,7 +84,7 @@ $categorias = mysqli_query($conn, "SELECT * FROM categorias");
                     <label for="categoria">Categoría:</label>
                     <select name="categoria">
                         <?php while ($categorias && $categoria = mysqli_fetch_assoc($categorias)): ?>
-                            <option value="<?php echo $categoria['id']; ?>"><?php echo $categoria['nombre']; ?></option>
+                            <option value="<?php echo $categoria['id']; ?>"><?php echo htmlspecialchars($categoria['nombre']); ?></option>
                         <?php endwhile; ?>
                     </select>
 
@@ -95,7 +95,7 @@ $categorias = mysqli_query($conn, "SELECT * FROM categorias");
                 <form action="index.php" method="POST">
                     <label for="nombre_categoria">Nombre de la categoría:</label>
                     <input type="text" name="nombre_categoria" required />
-                    
+
                     <input type="submit" name="crear_categoria" value="Guardar Categoría" class="boton boton-verde" />
                 </form>
             <?php else: ?>
@@ -104,34 +104,34 @@ $categorias = mysqli_query($conn, "SELECT * FROM categorias");
                 // Obtener entradas filtradas por categoría si se seleccionó una
                 if(isset($_GET['categoria'])) {
                     $categoria_id = (int)$_GET['categoria'];
-                    $sql = "SELECT e.*, c.nombre as categoria_nombre, u.nombre as autor 
-                            FROM entradas e 
-                            INNER JOIN categorias c ON e.categoria_id = c.id 
-                            INNER JOIN usuarios u ON e.usuario_id = u.id 
-                            WHERE e.categoria_id = $categoria_id 
+                    $sql = "SELECT e.id, e.usuario_id, e.categoria_id, e.titulo, e.descripcion AS contenido, e.fecha, c.nombre as categoria_nombre, u.nombre as autor
+                            FROM entradas e
+                            INNER JOIN categorias c ON e.categoria_id = c.id
+                            INNER JOIN usuarios u ON e.usuario_id = u.id
+                            WHERE e.categoria_id = $categoria_id
                             ORDER BY e.fecha DESC";
                     $categoria_actual = mysqli_fetch_assoc(mysqli_query($conn, "SELECT nombre FROM categorias WHERE id = $categoria_id"));
-                    echo "<h2>Entradas de la categoría: " . $categoria_actual['nombre'] . "</h2>";
+                    echo "<h2>Entradas de la categoría: " . htmlspecialchars($categoria_actual['nombre']) . "</h2>";
                 } else {
-                    $sql = "SELECT e.*, c.nombre as categoria_nombre, u.nombre as autor 
-                            FROM entradas e 
-                            INNER JOIN categorias c ON e.categoria_id = c.id 
-                            INNER JOIN usuarios u ON e.usuario_id = u.id 
+                    $sql = "SELECT e.id, e.usuario_id, e.categoria_id, e.titulo, e.descripcion AS contenido, e.fecha, c.nombre as categoria_nombre, u.nombre as autor
+                            FROM entradas e
+                            INNER JOIN categorias c ON e.categoria_id = c.id
+                            INNER JOIN usuarios u ON e.usuario_id = u.id
                             ORDER BY e.fecha DESC";
                 }
 
                 $entradas = mysqli_query($conn, $sql);
-                
+
                 if($entradas && mysqli_num_rows($entradas) > 0):
                     while($entrada = mysqli_fetch_assoc($entradas)):
                 ?>
                     <article class="entrada">
-                        <h2><?php echo $entrada['titulo']; ?></h2>
-                        <span class="fecha"><?php echo date('d/m/Y', strtotime($entrada['fecha'])); ?> | <?php echo $entrada['autor']; ?> | <?php echo $entrada['categoria_nombre']; ?></span>
-                        <p><?php echo substr($entrada['contenido'], 0, 200) . '...'; ?></p>
+                        <h2><?php echo htmlspecialchars($entrada['titulo']); ?></h2>
+                        <span class="fecha"><?php echo date('d/m/Y', strtotime($entrada['fecha'])); ?> | <?php echo htmlspecialchars($entrada['autor']); ?> | <?php echo htmlspecialchars($entrada['categoria_nombre']); ?></span>
+                        <p><?php echo substr(htmlspecialchars($entrada['contenido']), 0, 200) . '...'; ?></p>
                         <a href="php/entrada.php?id=<?php echo $entrada['id']; ?>" class="boton">Leer más</a>
                     </article>
-                <?php 
+                <?php
                     endwhile;
                 else:
                     echo "<p>No hay entradas para mostrar.</p>";

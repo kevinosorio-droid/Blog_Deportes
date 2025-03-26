@@ -10,8 +10,7 @@ include("conexion.php");
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $entrada_id = mysqli_real_escape_string($conn, $_GET['id']);
 
-    // Consulta SQL MODIFICADA para seleccionar 'descripcion' con el alias 'contenido'
-    $sql = "SELECT e.id, e.usuario_id, e.categoria_id, e.titulo, e.descripcion AS contenido, DATE_FORMAT(e.fecha, '%d/%m/%Y %H:%i') AS fecha, c.nombre AS categoria_nombre, u.nombre AS autor
+    $sql = "SELECT e.id, e.usuario_id, e.categoria_id, e.titulo, e.descripcion, DATE_FORMAT(e.fecha, '%d/%m/%Y %H:%i') AS fecha, c.nombre AS categoria_nombre, u.nombre AS autor
             FROM entradas e
             INNER JOIN categorias c ON e.categoria_id = c.id
             INNER JOIN usuarios u ON e.usuario_id = u.id
@@ -29,12 +28,10 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     exit();
 }
 
-// --- PROCESAMIENTO DE ELIMINACIÓN (Si se hace desde esta página) ---
+// Procesamiento de eliminación
 if (isset($_GET['eliminar']) && $_GET['eliminar'] == 'true' && isset($_SESSION['usuario'])) {
-    $delete_id = mysqli_real_escape_string($conn, $entrada_id); // Usamos el ID de la entrada actual
-
+    $delete_id = mysqli_real_escape_string($conn, $entrada_id);
     $sql_delete = "DELETE FROM entradas WHERE id = $delete_id";
-
     if (mysqli_query($conn, $sql_delete)) {
         $_SESSION['mensaje'] = "Entrada eliminada con éxito.";
         $_SESSION['tipo_mensaje'] = 'success';
@@ -43,10 +40,12 @@ if (isset($_GET['eliminar']) && $_GET['eliminar'] == 'true' && isset($_SESSION['
     } else {
         $_SESSION['mensaje'] = "Error al eliminar la entrada: " . mysqli_error($conn);
         $_SESSION['tipo_mensaje'] = 'danger';
-        header("Location: entrada.php?id=" . $entrada_id); // Volver a la misma página con error
+        header("Location: entrada.php?id=" . $entrada_id);
         exit();
     }
 }
+
+mysqli_close($conn);
 ?>
 
 <!DOCTYPE html>
@@ -58,14 +57,12 @@ if (isset($_GET['eliminar']) && $_GET['eliminar'] == 'true' && isset($_SESSION['
 </head>
 <body>
     <?php include("../includes/header.php"); ?>
-
     <div id="contenedor">
         <div id="principal">
             <article class="entrada-completa">
                 <h1><?php echo htmlspecialchars($entrada['titulo']); ?></h1>
-                <span class="fecha"><?php echo $entrada['fecha']; ?> | <?php echo htmlspecialchars($entrada['autor']); ?> | <?php echo htmlspecialchars($entrada['categoria_nombre']); ?></span>
-                <p><?php echo nl2br(htmlspecialchars($entrada['contenido'])); ?></p>
-
+                <span class="fecha"><?php echo $entrada['fecha']; ?> | <?php echo htmlspecialchars($entrada['autor']); ?> | <a href="../index.php?categoria=<?php echo $entrada['categoria_id']; ?>"><?php echo htmlspecialchars($entrada['categoria_nombre']); ?></a></span>
+                <p><?php echo nl2br(htmlspecialchars($entrada['descripcion'])); ?></p>
                 <?php if (isset($_SESSION['usuario'])): ?>
                     <div class="acciones">
                         <a href="editar_entrada.php?id=<?php echo $entrada['id']; ?>" class="boton boton-editar">Editar</a>
@@ -74,13 +71,8 @@ if (isset($_GET['eliminar']) && $_GET['eliminar'] == 'true' && isset($_SESSION['
                 <?php endif; ?>
             </article>
         </div>
-
         <?php include("../includes/sidebar.php"); ?>
     </div>
-
     <?php include("../includes/footer.php"); ?>
 </body>
 </html>
-<?php
-mysqli_close($conn);
-?>
