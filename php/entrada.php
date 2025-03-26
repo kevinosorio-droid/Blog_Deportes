@@ -1,5 +1,4 @@
 <?php
-// Habilitar la visualización de errores
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -8,43 +7,52 @@ session_start();
 include("conexion.php");
 
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $entrada_id = mysqli_real_escape_string($conn, $_GET['id']);
+    $entrada_id = $_GET['id'];
 
-    // Consulta SQL MODIFICADA para seleccionar 'descripcion' con el alias 'contenido'
-    $sql = "SELECT e.id, e.usuario_id, e.categoria_id, e.titulo, e.descripcion AS contenido, DATE_FORMAT(e.fecha, '%d/%m/%Y %H:%i') AS fecha, c.nombre AS categoria_nombre, u.nombre AS autor
+    $sql = "SELECT e.id, e.usuario_id, e.categoria_id, e.titulo, e.descripcion AS contenido, 
+                   DATE_FORMAT(e.fecha, '%d/%m/%Y %H:%i') AS fecha, 
+                   c.nombre AS categoria_nombre, 
+                   u.nombre AS autor
             FROM entradas e
             INNER JOIN categorias c ON e.categoria_id = c.id
             INNER JOIN usuarios u ON e.usuario_id = u.id
-            WHERE e.id = $entrada_id";
-    $resultado = mysqli_query($conn, $sql);
+            WHERE e.id = ?";
 
-    if (mysqli_num_rows($resultado) == 1) {
-        $entrada = mysqli_fetch_assoc($resultado);
-    } else {
-        header("Location: ../index.php?error=entrada_no_encontrada");
-        exit();
+    if ($stmt = mysqli_prepare($conn, $sql)) {
+        mysqli_stmt_bind_param($stmt, "i", $entrada_id);
+        mysqli_stmt_execute($stmt);
+        $resultado = mysqli_stmt_get_result($stmt);
+        
+        if (mysqli_num_rows($resultado) == 1) {
+            $entrada = mysqli_fetch_assoc($resultado);
+        } else {
+            header("Location: ../index.php?error=entrada_no_encontrada");
+            exit();
+        }
+        mysqli_stmt_close($stmt);
     }
 } else {
     header("Location: ../index.php?error=id_invalido");
     exit();
 }
 
-// --- PROCESAMIENTO DE ELIMINACIÓN (Si se hace desde esta página) ---
 if (isset($_GET['eliminar']) && $_GET['eliminar'] == 'true' && isset($_SESSION['usuario'])) {
-    $delete_id = mysqli_real_escape_string($conn, $entrada_id); // Usamos el ID de la entrada actual
+    $sql_delete = "DELETE FROM entradas WHERE id = ?";
 
-    $sql_delete = "DELETE FROM entradas WHERE id = $delete_id";
-
-    if (mysqli_query($conn, $sql_delete)) {
-        $_SESSION['mensaje'] = "Entrada eliminada con éxito.";
-        $_SESSION['tipo_mensaje'] = 'success';
-        header("Location: ../index.php");
-        exit();
-    } else {
-        $_SESSION['mensaje'] = "Error al eliminar la entrada: " . mysqli_error($conn);
-        $_SESSION['tipo_mensaje'] = 'danger';
-        header("Location: entrada.php?id=" . $entrada_id); // Volver a la misma página con error
-        exit();
+    if ($stmt = mysqli_prepare($conn, $sql_delete)) {
+        mysqli_stmt_bind_param($stmt, "i", $entrada_id);
+        if (mysqli_stmt_execute($stmt)) {
+            $_SESSION['mensaje'] = "Entrada eliminada con éxito.";
+            $_SESSION['tipo_mensaje'] = 'success';
+            header("Location: ../index.php");
+            exit();
+        } else {
+            $_SESSION['mensaje'] = "Error al eliminar la entrada: " . mysqli_error($conn);
+            $_SESSION['tipo_mensaje'] = 'danger';
+            header("Location: entrada.php?id=" . $entrada_id);
+            exit();
+        }
+        mysqli_stmt_close($stmt);
     }
 }
 ?>
@@ -53,7 +61,7 @@ if (isset($_GET['eliminar']) && $_GET['eliminar'] == 'true' && isset($_SESSION['
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title><?php echo htmlspecialchars($entrada['titulo']); ?> - Blog de Temas</title>
+    <title><?php echo htmlspecialchars($entrada['titulo'] ?? 'Título no disponible'); ?> - Blog de Temas</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
@@ -62,9 +70,11 @@ if (isset($_GET['eliminar']) && $_GET['eliminar'] == 'true' && isset($_SESSION['
     <div id="contenedor">
         <div id="principal">
             <article class="entrada-completa">
-                <h1><?php echo htmlspecialchars($entrada['titulo']); ?></h1>
-                <span class="fecha"><?php echo $entrada['fecha']; ?> | <?php echo htmlspecialchars($entrada['autor']); ?> | <?php echo htmlspecialchars($entrada['categoria_nombre']); ?></span>
-                <p><?php echo nl2br(htmlspecialchars($entrada['contenido'])); ?></p>
+                <h1><?php echo htmlspecialchars($entrada['titulo'] ?? 'Título no disponible'); ?></h1>
+                <span class="fecha"><?php echo $entrada['fecha'] ?? 'Fecha desconocida'; ?> | 
+                <?php echo htmlspecialchars($entrada['autor'] ?? 'Autor desconocido'); ?> | 
+                <?php echo htmlspecialchars($entrada['categoria_nombre'] ?? 'Categoría desconocida'); ?></span>
+                <p><?php echo nl2br(htmlspecialchars($entrada['contenido'] ?? 'Contenido no disponible')); ?></p>
 
                 <?php if (isset($_SESSION['usuario'])): ?>
                     <div class="acciones">
