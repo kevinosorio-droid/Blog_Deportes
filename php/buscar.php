@@ -6,13 +6,8 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-session_start();
+// Incluir conexión (usa una sola ruta consistente)
 include("conexion.php");
-
-// Verificar conexión
-if (!$conn) {
-    die("<div class='alerta-error'>Error: No se pudo conectar a la base de datos. " . mysqli_connect_error() . "</div>");
-}
 
 // Obtener el término de búsqueda
 if (isset($_GET['termino']) && !empty($_GET['termino'])) {
@@ -32,45 +27,63 @@ if (isset($_GET['termino']) && !empty($_GET['termino'])) {
     $resultados = false;
     $mensaje_error = "Por favor, ingrese un término de búsqueda.";
 }
+
+// Buscar en la base de datos
+$sql = "SELECT * FROM entradas WHERE titulo LIKE ? OR descripcion LIKE ?";
+$stmt = $conn->prepare($sql);
+$busquedaParam = "%$busqueda%";
+$stmt->bind_param("ss", $busquedaParam, $busquedaParam);
+$stmt->execute();
+$resultado = $stmt->get_result();
+
+// Obtener los resultados
+$resultados = [];
+while ($fila = $resultado->fetch_assoc()) {
+    $resultados[] = $fila;
+}
+
+$stmt->close();
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Resultados de la Búsqueda - Blog de Temas</title>
+    <title>Resultados de búsqueda</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
     <?php include("../includes/header.php"); ?>
-    <div id="contenedor">
-        <div id="principal">
-            <h1>Resultados de la Búsqueda</h1>
+    <?php include("../includes/sidebar.php"); ?>
 
-            <?php if (isset($mensaje_error)): ?>
-                <div class="alerta-error"><?php echo $mensaje_error; ?></div>
-            <?php endif; ?>
+    <div id="principal">
+        <h1>Resultados de búsqueda para: "<?php echo htmlspecialchars($busqueda); ?>"</h1>
 
-            <?php if ($resultados): ?>
-                <?php if (mysqli_num_rows($resultados) > 0): ?>
-                    <?php while ($entrada = mysqli_fetch_assoc($resultados)): ?>
-                        <article class="entrada">
-                            <h2><?php echo htmlspecialchars($entrada['titulo']); ?></h2>
-                            <span class="fecha"><?php echo $entrada['fecha']; ?> | <?php echo htmlspecialchars($entrada['autor']); ?> | <?php echo htmlspecialchars($entrada['categoria_nombre']); ?></span>
-                            <p><?php echo htmlspecialchars($entrada['resumen']) . '...'; ?></p>
-                            <a href="entrada.php?id=<?php echo $entrada['id']; ?>" class="boton">Leer más</a>
-                        </article>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <p>No se encontraron entradas que coincidan con su búsqueda.</p>
-                <?php endif; ?>
-            <?php endif; ?>
-        </div>
-        <?php include("../includes/sidebar.php"); ?>
+        <?php if (count($resultados) > 0): ?>
+            <ul>
+                <?php foreach ($resultados as $entrada): ?>
+                    <li>
+                        <h2><?php echo htmlspecialchars($entrada['titulo']); ?></h2>
+                        <p><?php echo htmlspecialchars($entrada['descripcion']); ?></p>
+                        <p><small>Publicado el: <?php echo date("d/m/Y H:i", strtotime($entrada['fecha'])); ?></small></p>
+                        <a href="entrada.php?id=<?php echo $entrada['id']; ?>">Leer más</a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php else: ?>
+            <p>No se encontraron resultados para "<?php echo htmlspecialchars($busqueda); ?>".</p>
+        <?php endif; ?>
     </div>
+
+    
+
     <?php include("../includes/footer.php"); ?>
-    <script src="../js/auth.js"></script>
 </body>
 </html>
 
-<?php mysqli_close($conn); ?>
+<?php
+// Ahora sí podemos cerrar la conexión, después de todo el HTML
+if (isset($conn)) {
+    $conn->close();
+}
+?>

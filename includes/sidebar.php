@@ -1,9 +1,9 @@
 <aside id="sidebar">
     <div id="buscador" class="bloque">
-        <h3>Buscar Entradas</h3>
-        <form action="buscar.php" method="get">
-            <input type="text" name="termino" placeholder="Ingrese su búsqueda">
-            <input type="submit" value="Buscar" class="boton">
+        <h3>Buscar</h3>
+        <form action="/Blog_Deportes/php/buscar.php" method="POST"> 
+            <input type="text" name="busqueda" />
+            <input type="submit" value="Buscar" />
         </form>
     </div>
 
